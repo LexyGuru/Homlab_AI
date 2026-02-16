@@ -77,8 +77,10 @@ flowchart TB
 - Kiderül, hogy **mélykeresés** kell-e: ha a mondatban van „mélykeresés” (vagy BE van kapcsolva), akkor **use_deep = True**.
 
 ### 2. Szándék (Intent)
-- **\_classify_search_intent(msg)** eldönti: **hír** / **időjárás** / **tudományos** / **általános**.
-- Híreknél a mélykeresés **time_range=day**-t ad a SearXNG-nek → frissebb találatok.
+- **Két mód:** kulcsszavak (alap) vagy **egy kis LLM** (USE_LLM_INTENT=1).
+- **Kulcsszavak:** \_needs_web_search, \_is_weather_query, \_is_image_search_query, „mélykeresés” szó → időjárás/keresés/kép/mélykeresés.
+- **LLM mód (USE_LLM_INTENT=1):** \_classify_intent_llm(msg) egy rövid Ollama hívással (pl. qwen2.5:0.5b) egyetlen címkét ad: **none** | **weather** | **image_search** | **deep_research** | **general_search**. Így nem szavakra (pl. „ma”, „keress”) aktiválódunk, hanem a mondat értelmére (pl. „ma kellene segítség” → none).
+- **\_classify_search_intent(msg)** (hír/időjárás/tudományos/általános) a mélykereséshez: híreknél **time_range=day**.
 
 ### 3. Hely (csak időjárásnál)
 - Ha a kérés **időjárás** („milyen idö lesz ma”): kell egy **hely**.
@@ -131,6 +133,8 @@ flowchart TB
 | **WEATHER_DEFAULT_COUNTRY** | Ország hely-egyértelműsítéshez, ha a mondatban nincs (pl. Bergheim → Austria). |
 | **MAX_DEEP_RESEARCH_PAGES** | Mélykeresés lapok max száma (default 10). |
 | **Intent + time_range** | Híreknél SearXNG time_range=day. |
+| **USE_LLM_INTENT** | 1 = szándékot egy kis LLM dönti (none/weather/image_search/deep_research/general_search), ne kulcsszavak. |
+| **OLLAMA_INTENT_MODEL** | USE_LLM_INTENT=1 esetén melyik modell (pl. gemma2:2b). |
 
 ---
 
